@@ -39,6 +39,7 @@ def agregartema(request):
         tema.nombre = nombre
         tema.contenido = contenido
         tema.autor = user
+        tema.save()
         temas = Tema.objects.all().order_by('-timestamp')[:1]
         for reg in temas:
             tema = reg
