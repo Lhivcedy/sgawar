@@ -14,17 +14,22 @@ from django.contrib import messages
 def index(request):
     return render(request, 'sitios/index.html')
 
+
 @login_required(login_url='login')
 def buscar(request):
     if request.POST:
         kword = request.POST.get('txtBuscar').strip().replace('  ', '')
         gerencias = Gerencia.objects.filter(nombre_gerencia__icontains=kword)
-        temas_gerencia = Tema.objects.filter(gerencia__in = gerencias).order_by('-timestamp')
-        temas_titulo = Tema.objects.filter(nombre__icontains = kword).order_by('-timestamp')
-        temas_contenido = Tema.objects.filter(contenido__icontains = kword).order_by('-timestamp')
-        contexto = {'temas_gerencia': temas_gerencia, 'temas_titulo': temas_titulo, 'temas_contenido':temas_contenido, 'kword':kword}
+        temas_gerencia = Tema.objects.filter(
+            gerencia__in=gerencias).order_by('-timestamp')
+        temas_titulo = Tema.objects.filter(
+            nombre__icontains=kword).order_by('-timestamp')
+        temas_contenido = Tema.objects.filter(
+            contenido__icontains=kword).order_by('-timestamp')
+        contexto = {'temas_gerencia': temas_gerencia, 'temas_titulo': temas_titulo,
+                    'temas_contenido': temas_contenido, 'kword': kword}
         return render(request, 'sitios/buscar.html', contexto)
-        
+
 
 @login_required(login_url='login')
 def temas(request):
@@ -72,6 +77,18 @@ def agregartema(request):
     gerencias = Gerencia.objects.all()
     contexto = {'gerencias': gerencias}
     return render(request, 'sitios/agregartema.html', contexto)
+
+
+@login_required(login_url='login')
+def agregarcapacitacion(request):
+    if not request.user.is_staff:
+        response = redirect('index')
+        return response
+    
+    if not request.POST:
+        
+        return render(request, 'sitios/agregarcapacitacion.html')
+    
 
 
 @login_required(login_url='login')
