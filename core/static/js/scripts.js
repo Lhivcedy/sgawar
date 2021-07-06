@@ -1,24 +1,90 @@
-$(document).ready()
-
-function test() {
-    $.ajax({
-        type: "POST",
-        url: "ajaxtest",
-        data: {
-            user: 'teXDst'
+function eliminarTema() {
+    var idTema = $("#txtIDTema").val();
+    swal({
+        title: "¿Eliminar Tema?",
+        text: "Los datos se eliminan en cascada, se eliminarán todos los registros asociados al tema",
+        icon: "warning",
+        buttons: {
+            confirm: {
+                text: "Eliminar",
+                value: true,
+                visible: true,
+                closeModal: true
+            },
+            cancel: {
+                text: "Cancelar",
+                value: false,
+                visible: true,
+                closeModal: true
+            }
         },
-        success: function (resultado) {
-            console.log(resultado);
+        dangerMode: true,
+        reverseButtons: true
+    }).then((value) => {
+        if (value) {
+            $.ajax({
+                type: "POST",
+                url: "eliminar_tema",
+                data: {
+                    idTema: idTema,
+                },
+                success: function (resultado) {
+                    if (resultado === "OK") {
+                        window.location.href = "/temas"
+                    }
+                }
+            });
         }
-    })
+    });
+    return false;
+}
+
+function eliminarArchivo(e) {
+    var elemento = e;
+    swal({
+        title: "¿Eliminar Archivo Adjunto?",
+        text: "El Archivo adjunto a este tema será eliminado.",
+        icon: "warning",
+        buttons: {
+            confirm: {
+                text: "Eliminar",
+                value: true,
+                visible: true,
+                closeModal: true
+            },
+            cancel: {
+                text: "Cancelar",
+                value: false,
+                visible: true,
+                closeModal: true
+            }
+        },
+        dangerMode: true,
+        reverseButtons: true
+    }).then((value) => {
+        if (value) {
+            $.ajax({
+                type: "POST",
+                url: "eliminar_adjunto",
+                data: {
+                    idArchivo: elemento.id,
+                },
+                success: function (resultado) {
+                    if (resultado === "OK") {
+                        location.reload();
+                    }
+                }
+            });
+        }
+    });
 }
 
 function validarForm() {
-    var archivo = $("#flsArchivos")[0].files;
-    if (archivo.length > 0) {
+    var gerencia = $("#cmbGerencia").val();
+    if (gerencia) {
         return true;
     } else {
-        errorMessage('Seleccionar Archivo(s).', 'Se debe seleccionar por lo menos 1 archivo.')
+        errorMessage('Error procesaro formulario', 'Seleccionar Gerencia');
         return false;
     }
 }

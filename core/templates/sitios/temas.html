@@ -2,23 +2,38 @@
 {% load static %}
 
 {% block contenido %}
-<div class="container mt-3">
-    <div class="row col-xxl-1 col-xl-1 col-lg-1 col-md-2 col-sm-8">
-        <a href="{% url 'agregartema' %}" class="btn btn-outline-primary">Agregar</a>
+<div class="container">
+    <div class="row col-xxl-2 col-xl-2 col-lg-2 col-md-2 col-sm-8 my-5">
+        <a href="{% url 'agregartema' %}" class="btn btn-outline-primary mx-auto col-10">Agregar</a>
     </div>
+
+    {% if messages %}
+    {% for message in messages %}
+    {% if message.tags == 'success' %}
+    <div class="alert alert-primary alert-dismissible fade show" role="alert">
+        {{message}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    {% if message.tags == 'error' %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{message}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
 
     <div class="row d-flex justify-content-between">
         {% for reg in temas %}
-            <div class="card p-0 my-3 col-xxl-6 col-xl-6 col-lg-6 col-md-10 col-sm-10">
+        <div class="card p-0 col-xxl-6 col-xl-6 col-lg-6 col-md-10 col-sm-10">
             <div class="card-header">
                 {{reg.id}}
             </div>
             <div class="card-body">
                 <h5 class="card-title">{{reg.nombre}}</h5>
                 <p class="card-text">{{reg.contenido}}</p>
-                <a href="#" class="btn btn-primary">Ver</a>
-                <a href="#" class="btn btn-warning">Editar</a>
-                <a href="#" class="btn btn-danger">Eliminar</a>
+                <a href="tema/{{reg.id}}" class="btn btn-primary">Ver</a>
             </div>
         </div>
         {% endfor %}

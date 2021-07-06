@@ -1,0 +1,61 @@
+{% extends 'base/base.html' %}
+{% block contenido %}
+<div class="container">
+    <div class="row">
+        {% if not temas_gerencia and not temas_titulo and not temas_contenido %}
+        <div class="mt-5">
+            <h2 class="text-center mt-5">No se encontraron resultados para la palabra '{{kword}}':
+        </div>
+        {% else %}
+        {% if temas_gerencia %}
+        <h2 class="text-center mt-3">Resultados temas por <strong>Gerencia</strong> para la busqueda '{{kword}}':</h2>
+        {% endif %}
+        {% for reg in temas_gerencia %}
+        <div class="card p-0 col-11 mx-auto my-3">
+            <div class="card-header">
+                ID Tema: {{reg.id}}
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{reg.nombre}}</h5>
+                <p class="card-text">{{reg.contenido}}</p>
+                <a href="tema/{{reg.id}}" class="btn btn-primary">Ver Tema</a>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if temas_titulo %}
+        <h2 class="text-center mt-3">Resultados temas por <strong>Nombre</strong> para la busqueda '{{kword}}':
+        </h2>
+        {% endif %}
+        {% for reg in temas_titulo %}
+        <div class="card p-0 col-11 mx-auto my-3">
+            <div class="card-header">
+                ID Tema: {{reg.id}}
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{reg.nombre}}</h5>
+                <p class="card-text">{{reg.contenido}}</p>
+                <a href="tema/{{reg.id}}" class="btn btn-primary">Ver Tema</a>
+            </div>
+        </div>
+        {% endfor %}
+        {% if temas_contenido %}
+        <h2 class="text-center mt-3">Resultados temas por <strong>Contenido</strong> para la busqueda '{{kword}}':
+        </h2>
+        {% endif %}
+        {% for reg in temas_contenido %}
+        <div class="card p-0 col-11 mx-auto my-3">
+            <div class="card-header">
+                ID Tema: {{reg.id}}
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{reg.nombre}}</h5>
+                <p class="card-text">{{reg.contenido}}</p>
+                <a href="tema/{{reg.id}}" class="btn btn-primary">Ver Tema</a>
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+</div>
+{% endblock contenido %}

@@ -2,14 +2,40 @@
 
 {% block contenido %}
 <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-sm-8 col-12 mx-auto mt-3">
-    <form class="form-signin mx-5" enctype="multipart/form-data" action="{% url 'agregartema' %}" onsubmit="return validarForm()" method="POST">
+    {% if messages %}
+    {% for message in messages %}
+    {% if message.tags == 'success' %}
+    <div class="alert alert-primary alert-dismissible fade show" role="alert">
+        {{message}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    {% if message.tags == 'error' %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{message}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+    <form class="form-signin mx-5" enctype="multipart/form-data" action="{% url 'agregartema' %}" method="POST"
+        onsubmit="return validarForm()">
         {% csrf_token %}
-        <div class="form-label-group mb-3">
+        <div class="form-label-group mt-5 mb-2">
             <h3 class="text-center">Agregar Tema</h3>
         </div>
         <div class="form-label-group">
             <label for="txtNombreTema" class="mb-2">Nombre:</label>
-            <input type="text" class="form-control mb-2" id="txtNombreTema" name="txtNombreTema" required/>
+            <input type="text" class="form-control mb-2" id="txtNombreTema" name="txtNombreTema" required />
+        </div>
+        <div class="form-label-group">
+            <label for="cmbGerencia" class="mb-2">Gerencia:</label>
+            <select class="form-select mb-2" aria-label="Default select example" name="cmbGerencia" id="cmbGerencia">
+                <option selected disabled>Seleccionar Gerencia...</option>
+                {% for reg in gerencias %}
+                <option value={{reg.id}}>{{reg.nombre_gerencia}}</option>
+                {% endfor %}
+            </select>
         </div>
         <div class="form-label-group">
             <label for="flsArchivos" class="form-label">Agregar Archivos:</label>
@@ -20,8 +46,8 @@
             <textarea class="form-control mb-2" id="txtContenido" name="txtContenido" rows="5" required></textarea>
         </div>
         <div class="d-flex justify-content-between">
-            <button class="btn btn-primary mt-5" type="submit">Registrar</button>
-            <button class="btn btn-danger mt-5" type="button">Cancelar</button>
+            <button class="btn btn-primary mt-3" type="submit">Registrar</button>
+            <a href="{% url 'temas' %}" class="btn btn-danger mt-3">Volver</a>
         </div>
     </form>
 </div>
