@@ -1,0 +1,118 @@
+{% extends 'base/base.html' %}
+{% block contenido %}
+<div class="container">
+    <div class="row">
+        <div class="col-xxl-4 col-xl-4 col-lg-5 col-md-6 col-sm-12 mx-auto mb-3">
+            {% if archivos %}
+            <h2 class="text-center mt-2">Archivos Adjuntos</h2>
+            {% for reg in archivos %}
+            <div class="alert alert-danger alert-dismissible fade show d-flex justify-content-between" role="alert">
+                <a href="{{reg.file.url}}" target="_blank">{{reg.filename|truncatechars:34}}</a>
+                <button type="button" class="btn-close" id="{{reg.id}}" aria-label="Close"
+                    onclick="return eliminarArchivoCapacitacion(this)"></button>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="h-100">
+                <h2 class="text-center mt-5">Sin Archivos Adjuntos</h2>
+            </div>
+            {% endif %}
+        </div>
+        <div class="col-xxl-8 col-xl-8 col-lg-7 col-md-8 col-sm-12 mx-auto">
+            <form class="form-signin mx-5 col-12 mx-auto" enctype="multipart/form-data"
+                action="{% url 'agregarcapacitacion' %}" method="POST" onsubmit="">
+                {% csrf_token %}
+                <div class="form-label-group mt-2 mb-2">
+                    <h3 class="text-center">Actualizar Capacitación <strong>{{capacitacion.id}}</strong></h3>
+                    <input type="text" value="{{capacitacion.id}}" readonly hidden id="txtIDCapacitacion"
+                        name="txtIDCapacitacion">
+                </div>
+                <div class="form-label-group mb-2">
+                    <label for="txtNombreCapacitacion" class="mb-2">Nombre:</label>
+                    <input type="text" class="form-control mb-2" id="txtNombreCapacitacion" name="txtNombreCapacitacion"
+                        value="{{capacitacion.nombre}}" required />
+                </div>
+                <div class="form-label-group mb-2">
+                    <label for="cmbTema" class="mb-2">Tema:</label>
+                    <select class="form-select mb-2" aria-label="Default select example" name="cmbTema" id="cmbTema">
+                        <option selected disabled>Seleccionar Tema...</option>
+                        {% for reg in temas %}
+                        {% if capacitacion.tema.id == reg.id %}
+                        <option value={{reg.id}} selected>{{reg.nombre}}</option>
+                        {% else %}
+                        <option value={{reg.id}}>{{reg.nombre}}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-label-group mb-2">
+                    <label for="cmbTema" class="mb-2">Encargado:</label>
+                    <select class="form-select mb-2" aria-label="Default select example" name="cmbEncargado"
+                        id="cmbEncargado">
+                        <option selected disabled>Seleccionar Encargado...</option>
+                        {% for reg in capacitadores %}
+                        {% if capacitacion.encargado.id == reg.id %}
+                        <option value={{reg.id}} selected>{{reg.user.username}}</option>
+                        {% else %}
+                        <option value={{reg.id}}>{{reg.user.username}}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-label-group mb-2">
+                    <label for="flsArchivos" class="form-label mb-2">Agregar Archivos:</label>
+                    <input class="form-control mb-2" type="file" id="flsArchivos" name="flsArchivos" multiple />
+                </div>
+                <div class="form-label-group mb-2">
+                    <label for="txtContenido" class="mb-2">Contenido:</label>
+                    <textarea class="form-control mb-2" id="txtContenido" name="txtContenido" rows="5"
+                        required>{{capacitacion.contenido}}</textarea>
+                </div>
+                <div class="form-label-group mb-2">
+                    <label for="cmbFrecuencia" class="mb-2">Frecuencia:</label>
+                    <select class="form-select mb-2" aria-label="Default select example" name="cmbFrecuencia"
+                        id="cmbFrecuencia">
+                        <option selected disabled>Seleccionar Frecuencia...</option>
+                        {% for reg in frecuencia %}
+                        {% if capacitacion.frecuencia.id == reg.id %}
+                        <option value={{reg.id}} selected>{{reg.nombre_frecuencia}}</option>
+                        {% else %}
+                        <option value={{reg.id}}>{{reg.nombre_frecuencia}}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-label-group mb-2">
+                    <label for="txtFecha" class="mb-2">Fecha:</label>
+                    <input type="date" class="form-control mb-2" id="txtFecha" name="txtFecha" required
+                        value="{{capacitacion.fecha|date:'Y-m-d'}}" />
+                </div>
+                <div class="form-label-group mb-2">
+                    <label for="txtHora" class="mb-2">Hora:</label>
+                    <input type="time" class="form-control mb-2" id="txtHora" name="txtHora" required
+                        value="{{capacitacion.hora}}" />
+                </div>
+                <div class="form-label-group mb-2">
+                    <label for="cmbDuracion" class="mb-2">Duración:</label>
+                    <select class="form-select mb-2" aria-label="Default select example" name="cmbDuracion"
+                        id="cmbDuracion">
+                        <option selected disabled>Seleccionar Duración...</option>
+                        {% for reg in duracion %}
+                        {% if reg.id == capacitacion.duracion.id %}
+                        <option value={{reg.id}} selected>{{reg.nombre_duracion}}</option>
+                        {% else %}
+                        <option value={{reg.id}}>{{reg.nombre_duracion}}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="d-flex justify-content-between mt-3">
+                    <button class="btn btn-warning " type="submit">Actualizar</button>
+                    <button class="btn btn-danger" onclick="return eliminarCapa()" type="button">Eliminar</button>
+                    <a class="btn btn-secondary" href="{% url 'capacitaciones' %}">Volver</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock contenido %}

@@ -18,7 +18,7 @@
     {% endif %}
     {% endfor %}
     {% endif %}
-    <form class="form-signin mx-5" enctype="multipart/form-data" action="{% url 'agregartema' %}" method="POST"
+    <form class="form-signin mx-5 col-12 mx-auto" enctype="multipart/form-data" action="{% url 'agregartema' %}" method="POST"
         onsubmit="return validarForm()">
         {% csrf_token %}
         <div class="form-label-group mt-5 mb-2">

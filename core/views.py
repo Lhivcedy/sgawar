@@ -1,4 +1,4 @@
-from core.models import Archivos, Gerencia, Tema
+from core.models import Archivos, ArchivosCapacitacion, Capacitaciones, Duracion, Frecuencia, Gerencia, Invitados, Tema, Usuarios
 from django.shortcuts import render
 from django.http import HttpResponse, response
 from django.views.decorators.csrf import csrf_exempt
@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, logout, login as login_aut
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+import csv
+import codecs
 
 # Create your views here.
 
@@ -36,9 +38,19 @@ def temas(request):
     if not request.user.is_staff:
         response = redirect('index')
         return response
-    temas = Tema.objects.all().order_by('-timestamp')
+    temas = Tema.objects.all().order_by('-id')
     contexto = {'temas': temas}
     return render(request, 'sitios/temas.html', contexto)
+
+
+@login_required(login_url='login')
+def capacitaciones(request):
+    if not request.user.is_staff:
+        response = redirect('index')
+        return response
+    capacitaciones = Capacitaciones.objects.all().order_by('-id')
+    contexto = {'capacitaciones': capacitaciones}
+    return render(request, 'sitios/capacitaciones.html', contexto)
 
 
 @login_required(login_url='login')
@@ -73,6 +85,8 @@ def agregartema(request):
             else:
                 mensaje_exito = f'Tema {tema.nombre} creado, id asginado: {tema.id}'
                 messages.success(request, mensaje_exito)
+        response = redirect('agregartema')
+        return response
 
     gerencias = Gerencia.objects.all()
     contexto = {'gerencias': gerencias}
@@ -84,11 +98,70 @@ def agregarcapacitacion(request):
     if not request.user.is_staff:
         response = redirect('index')
         return response
-    
+
     if not request.POST:
-        
-        return render(request, 'sitios/agregarcapacitacion.html')
-    
+        frecuencia = Frecuencia.objects.all()
+        duracion = Duracion.objects.all()
+        temas = Tema.objects.all()
+        capacitadores = Usuarios.objects.filter(
+            capacitador=True).order_by('user__username')
+        contexto = {'frecuencia': frecuencia,
+                    'duracion': duracion, 'temas': temas, 'capacitadores': capacitadores}
+        return render(request, 'sitios/agregarcapacitacion.html', contexto)
+    else:
+        # obtener datos POST
+        id_capa = request.POST.get('txtIDCapacitacion')
+        nombre = request.POST.get('txtNombreCapacitacion')
+        id_tema = request.POST.get('cmbTema')
+        encargado = request.POST.get('cmbEncargado')
+        archivos = request.FILES.getlist('flsArchivos')
+        contenido = request.POST.get('txtContenido')
+        id_frecuencia = request.POST.get('cmbFrecuencia')
+        fecha = request.POST.get('txtFecha')
+        hora = request.POST.get('txtHora')
+        id_duracion = request.POST.get('cmbDuracion')
+
+        # Obtener FK
+        tema = Tema.objects.get(id=id_tema)
+        frecuencia = Frecuencia.objects.get(id=id_frecuencia)
+        duracion = Duracion.objects.get(id=id_duracion)
+        encargado = Usuarios.objects.get(id=encargado)
+
+        # Crear objeto capacitacion
+        capacitacion = Capacitaciones()
+        if id_capa is not None:
+            capacitacion.id = id_capa
+        capacitacion.tema = tema
+        capacitacion.nombre = nombre
+        capacitacion.encargado = encargado
+        capacitacion.contenido = contenido
+        capacitacion.frecuencia = frecuencia
+        capacitacion.fecha = fecha
+        capacitacion.hora = hora
+        capacitacion.duracion = duracion
+        capacitacion.save()
+        capa = Capacitaciones.objects.all().order_by('-timestamp')[:1]
+        for reg in capa:
+            capacitacion = reg
+        else:
+            for reg in archivos:
+                archivo = ArchivosCapacitacion()
+                archivo.capacitacion = capacitacion
+                archivo.file = reg
+                archivo.save()
+            else:
+                if id_capa is not None:
+                    mensaje_exito = f'Capacitación {capacitacion.id} actualizada'
+                    messages.success(request, mensaje_exito)
+                else:
+                    mensaje_exito = f'Capacitación {capacitacion.nombre} creada, id asginado: {capacitacion.id}'
+                    messages.success(request, mensaje_exito)
+        if id_capa is not None:
+            response = redirect('capacitaciones')
+            return response
+
+        response = redirect('agregarcapacitacion')
+        return response
 
 
 @login_required(login_url='login')
@@ -129,8 +202,38 @@ def vertema(request, id):
     tema = Tema.objects.get(id=id)
     archivos = Archivos.objects.filter(tema=tema)
     gerencias = Gerencia.objects.all()
+
     contexto = {'tema': tema, 'archivos': archivos, 'gerencias': gerencias}
     return render(request, 'sitios/vertema.html', contexto)
+
+
+@login_required(login_url='login')
+def vercapacitacion(request, id):
+    if not request.user.is_staff:
+        response = redirect('index')
+        return response
+    capacitacion = Capacitaciones.objects.get(id=id)
+    archivos = ArchivosCapacitacion.objects.filter(capacitacion=capacitacion)
+    frecuencia = Frecuencia.objects.all()
+    duracion = Duracion.objects.all()
+    capacitadores = Usuarios.objects.filter(
+        capacitador=True).order_by('user__username')
+    temas = Tema.objects.all()
+    contexto = {'frecuencia': frecuencia,
+                'duracion': duracion, 'temas': temas, 'archivos': archivos, 'capacitacion': capacitacion, 'capacitadores': capacitadores}
+    return render(request, 'sitios/vercapacitacion.html', contexto)
+
+
+@login_required(login_url='login')
+def ver_invitados_hitos(request, id):
+    if not request.user.is_staff:
+        response = redirect('index')
+        return response
+
+    capacitaciones = ArchivosCapacitacion.objects.filter(capacitacion_id=id)
+    invitados = Invitados.objects.filter(capacitacion_id=id)
+    contexto = {'capacitacion': capacitaciones, 'invitados': invitados}
+    return render(request, 'sitios/invitadoshitos.html', contexto)
 
 
 @login_required(login_url='login')
@@ -159,6 +262,26 @@ def login(request):
 
     return render(request, 'sitios/login.html')
 
+
+def cargar_invitados(request):
+    if request.POST:
+        archivo = request.FILES.get('flsArchivo')
+        id = request.POST.get('txtIDC')
+        file_reader = csv.reader(codecs.iterdecode(
+            archivo, 'utf-8'), delimiter=';')
+        capacitacion = Capacitaciones.objects.get(id=id)
+    for row in file_reader:
+        invitado = Invitados()
+        gerencia = Gerencia.objects.get(id=row[2])
+        invitado.rut = row[0]
+        invitado.nombre = row[1]
+        invitado.gerencia = gerencia
+        invitado.capacitacion = capacitacion
+        invitado.save()
+    else:
+        return redirect('detalle_capacitacion', id=id)
+
+
 # Metodos AJAX
 
 
@@ -183,6 +306,27 @@ def eliminar_tema(request):
 
 
 @csrf_exempt
+def eliminar_capa(request):
+    if not request.user.is_staff:
+        response = redirect('index')
+        return response
+
+    if request.POST:
+        id = request.POST.get('idCapa')
+        print(id + '*************************')
+        try:
+            capa = Capacitaciones.objects.get(id=id)
+            capa.delete()
+            mensaje_exito = f'Se eliminó la capacitación {id}'
+            messages.success(request, mensaje_exito)
+            return HttpResponse("OK")
+        except:
+            mensaje_error = f'No se pudo eliminar el tema número {capa.id}'
+            messages.error(request, mensaje_error)
+            return HttpResponse("NO")
+
+
+@csrf_exempt
 def eliminar_adjunto(request):
     if not request.user.is_staff:
         response = redirect('index')
@@ -193,6 +337,38 @@ def eliminar_adjunto(request):
         try:
             archivo = Archivos.objects.get(id=id)
             archivo.delete()
+            return HttpResponse("OK")
+        except:
+            return HttpResponse("NO")
+
+
+@csrf_exempt
+def eliminar_adjunto_capacitacion(request):
+    if not request.user.is_staff:
+        response = redirect('index')
+        return response
+
+    if request.POST:
+        id = request.POST.get('idArchivo')
+        try:
+            archivo = ArchivosCapacitacion.objects.get(id=id)
+            archivo.delete()
+            return HttpResponse("OK")
+        except:
+            return HttpResponse("NO")
+
+
+@csrf_exempt
+def eliminar_invitado_capacitacion(request):
+    if not request.user.is_staff:
+        response = redirect('index')
+        return response
+
+    if request.POST:
+        id = request.POST.get('idInvitado')
+        try:
+            invitado = Invitados.objects.get(id=id)
+            invitado.delete()
             return HttpResponse("OK")
         except:
             return HttpResponse("NO")

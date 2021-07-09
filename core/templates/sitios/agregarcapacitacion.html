@@ -18,36 +18,73 @@
     {% endif %}
     {% endfor %}
     {% endif %}
-    <form class="form-signin mx-5" enctype="multipart/form-data" action="{% url 'agregartema' %}" method="POST"
-        onsubmit="return validarForm()">
+    <form class="form-signin mx-5 col-12 mx-auto" enctype="multipart/form-data" action="{% url 'agregarcapacitacion' %}" method="POST"
+        onsubmit="">
         {% csrf_token %}
         <div class="form-label-group mt-5 mb-2">
-            <h3 class="text-center">Agregar Tema</h3>
+            <h3 class="text-center">Agregar Capacitación</h3>
         </div>
-        <div class="form-label-group">
-            <label for="txtNombreTema" class="mb-2">Nombre:</label>
-            <input type="text" class="form-control mb-2" id="txtNombreTema" name="txtNombreTema" required />
+        <div class="form-label-group mb-2">
+            <label for="txtNombreCapacitacion" class="mb-2">Nombre:</label>
+            <input type="text" class="form-control mb-2" id="txtNombreCapacitacion" name="txtNombreCapacitacion"
+                required />
         </div>
-        <div class="form-label-group">
-            <label for="cmbGerencia" class="mb-2">Gerencia:</label>
-            <select class="form-select mb-2" aria-label="Default select example" name="cmbGerencia" id="cmbGerencia">
-                <option selected disabled>Seleccionar Gerencia...</option>
-                {% for reg in gerencias %}
-                <option value={{reg.id}}>{{reg.nombre_gerencia}}</option>
+        <div class="form-label-group mb-2">
+            <label for="cmbTema" class="mb-2">Tema:</label>
+            <select class="form-select mb-2" aria-label="Default select example" name="cmbTema" id="cmbTema">
+                <option selected disabled>Seleccionar Tema...</option>
+                {% for reg in temas %}
+                <option value={{reg.id}}>{{reg.nombre}}</option>
                 {% endfor %}
             </select>
         </div>
-        <div class="form-label-group">
-            <label for="flsArchivos" class="form-label">Agregar Archivos:</label>
-            <input class="form-control" type="file" id="flsArchivos" name="flsArchivos" multiple />
+         <div class="form-label-group mb-2">
+            <label for="cmbTema" class="mb-2">Encargado:</label>
+            <select class="form-select mb-2" aria-label="Default select example" name="cmbEncargado" id="cmbEncargado">
+                <option selected disabled>Seleccionar Encargado...</option>
+                {% for reg in capacitadores %}
+                <option value={{reg.id}}>{{reg.user.username}}</option>
+                {% endfor %}
+            </select>
         </div>
-        <div class="form-label-group">
+        <div class="form-label-group mb-2">
+            <label for="flsArchivos" class="form-label mb-2">Agregar Archivos:</label>
+            <input class="form-control mb-2" type="file" id="flsArchivos" name="flsArchivos" multiple />
+        </div>
+        <div class="form-label-group mb-2">
             <label for="txtContenido" class="mb-2">Contenido:</label>
             <textarea class="form-control mb-2" id="txtContenido" name="txtContenido" rows="5" required></textarea>
         </div>
-        <div class="d-flex justify-content-between">
-            <button class="btn btn-primary mt-3" type="submit">Registrar</button>
-            <a href="{% url 'temas' %}" class="btn btn-danger mt-3">Volver</a>
+        <div class="form-label-group mb-2">
+            <label for="cmbFrecuencia" class="mb-2">Frecuencia:</label>
+            <select class="form-select mb-2" aria-label="Default select example" name="cmbFrecuencia"
+                id="cmbFrecuencia">
+                <option selected disabled>Seleccionar Frecuencia...</option>
+                {% for reg in frecuencia %}
+                <option value={{reg.id}}>{{reg.nombre_frecuencia}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-label-group mb-2">
+            <label for="txtFecha" class="mb-2">Fecha:</label>
+            <input type="date" class="form-control mb-2" id="txtFecha" name="txtFecha" required />
+        </div>
+        <div class="form-label-group mb-2">
+            <label for="txtHora" class="mb-2">Hora:</label>
+            <input type="time" class="form-control mb-2" id="txtHora" name="txtHora" required />
+        </div>
+        <div class="form-label-group mb-2">
+            <label for="cmbDuracion" class="mb-2">Duración:</label>
+            <select class="form-select mb-2" aria-label="Default select example" name="cmbDuracion" id="cmbDuracion">
+                <option selected disabled>Seleccionar Duración...</option>
+                {% for reg in duracion %}
+                <option value={{reg.id}}>{{reg.nombre_duracion}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="d-flex justify-content-between mb-5 mt-3">
+            <button class="btn btn-primary " type="submit">Registrar</button>
+            <a href="{% url 'capacitaciones' %}" class="btn btn-danger">Volver</a>
         </div>
     </form>
 </div>

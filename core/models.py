@@ -27,7 +27,7 @@ def create_path_capacitaciones(instance, filename):
     return os.path.join(
         'archivos',
         'capacitaciones',
-        str(instance.tema.id),
+        str(instance.capacitacion.id),
         filename
     )
 
@@ -68,14 +68,6 @@ class Archivos(models.Model):
         return os.path.basename(self.file.name)
 
 
-class Topico(models.Model):
-    id = models.IntegerField(primary_key=True)
-    nombre_topico = models.CharField(max_length=100)
-
-    def __str__(self):
-        return f'{self.id} {self.nombre_topico}'
-
-
 class Frecuencia(models.Model):
     id = models.IntegerField(primary_key=True)
     nombre_frecuencia = models.CharField(max_length=100)
@@ -93,13 +85,23 @@ class Duracion(models.Model):
         return f'{self.id} {self.nombre_duracion}'
 
 
+class Usuarios(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    capacitador = models.BooleanField(default=False)
+    coordinador = models.BooleanField(default=False)
+    alumno = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.user.username}'
+
+
 class Capacitaciones(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     timestamp = models.DateTimeField(auto_now=True, auto_created=True)
     tema = models.ForeignKey(Tema, on_delete=models.CASCADE)
-    topico = models.ForeignKey(Topico, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=100)
-    encargado = models.CharField(max_length=100)
+    encargado = models.ForeignKey(Usuarios, on_delete=models.CASCADE)
     contenido = models.TextField()
     frecuencia = models.ForeignKey(Frecuencia, on_delete=models.CASCADE)
     fecha = models.DateField(auto_now=False, auto_now_add=False)
@@ -121,3 +123,15 @@ class ArchivosCapacitacion(models.Model):
 
     def filename(self):
         return os.path.basename(self.file.name)
+
+
+class Invitados(models.Model):
+    id = models.AutoField(primary_key=True)
+    capacitacion = models.ForeignKey(Capacitaciones, on_delete=models.CASCADE)
+    rut = models.CharField(max_length=50)
+    nombre = models.CharField(max_length=250)
+    gerencia = models.ForeignKey(Gerencia, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.id} {self.rut} {self.nombre}'
+

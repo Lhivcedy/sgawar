@@ -1,0 +1,119 @@
+{% extends 'base/base.html' %}
+
+{% block contenido %}
+
+<div class="container">
+        <div class="row">
+                <h2 class="col-11 p-0 mx-auto mt-3">Capacitación ID: {{capacitacion.0.capacitacion.id}}</h2>
+                <div class="card p-0 mx-auto col-11 mt-1">
+                        <div class="card-header text-center">
+                                {{capacitacion.0.capacitacion.nombre}}
+                        </div>
+                        <div class="card-body">
+                                <h5 class="text-left mb-3">Invitados:</h5>
+                                <table class="table table-responsive">
+                                        <thead>
+                                                <tr>
+                                                        <th scope="col">Rut</th>
+                                                        <th scope="col">Nombre</th>
+                                                        <th scope="col">Gerencia</th>
+                                                        <th scope="col">Acción</th>
+                                                </tr>
+                                        </thead>
+                                        <tbody>
+                                                {% if invitados %}
+                                                {% for reg in invitados %}
+                                                <tr>
+                                                        <td>{{reg.rut}}</td>
+                                                        <td>{{reg.nombre}}</td>
+                                                        <td>{{reg.gerencia.nombre_gerencia}}</td>
+                                                        <td><button class="btn btn-danger"
+                                                                        onclick="return eliminarInvitado(this)"
+                                                                        id="{{reg.id}}">Eliminar</button></td>
+                                                </tr>
+                                                {% endfor %}
+                                                {% endif %}
+                                        </tbody>
+                                </table>
+                                <div class="d-flex justify-content-between mb-3">
+                                        <h5>Hitos:</h5>
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                                data-bs-target="#cargarInvitado">
+                                                + Invitados
+                                        </button>
+                                </div>
+                                <table class="table">
+                                        <thead>
+                                                <tr>
+                                                        <th scope="col">Fecha</th>
+                                                        <th scope="col">Hora</th>
+                                                        <th scope="col">Participantes</th>
+                                                        <th scope="col">Registro</th>
+                                                        <th scope="col">Estado</th>
+                                                </tr>
+                                        </thead>
+                                        <tbody>
+
+                                        </tbody>
+                                </table>
+                                <div class="d-flex justify-content-end mb-3">
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                                data-bs-target="#cargarHito">
+                                                + Hitos
+                                        </button>
+                                </div>
+                        </div>
+                        <div class="card-footer text-muted text-center">
+                                Tema Creado el {{capacitacion.0.capacitacion.timestamp}} por
+                                {{capacitacion.0.capacitacion.tema.autor}}
+                        </div>
+                </div>
+        </div>
+</div>
+<!-- Modal Invitados -->
+<div class="modal fade" id="cargarInvitado" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="cargarInvitadoLabel" aria-hidden="true">
+        <div class="modal-dialog">
+                <div class="modal-content">
+                        <div class="modal-header">
+                                <h5 class="modal-title" id="cargarInvitadoLabel">Cargar Invitados</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                                <h5>Cargar Lista Invitados en formato CSV o TXT</h5>
+                                <form class="form-signin mx-5 col-12 mx-auto" enctype="multipart/form-data"
+                                        action="{% url 'cargarinvitados' %}" method="POST">
+                                        {% csrf_token %}
+                                        <div class="form-label-group">
+                                                <label for="flsArchivo" class="form-label">Agregar Archivos:</label>
+                                                <input class="form-control" type="file" id="flsArchivo"
+                                                        name="flsArchivo" accept=".csv" />
+                                                <input type="text" readonly name="txtIDC"
+                                                        value="{{capacitacion.0.capacitacion.id}}" hidden />
+                                        </div>
+                                        <div class="form-label-group">
+                                                <button class="btn btn-primary mt-3" type="submit">Registrar</button>
+                                        </div>
+                                </form>
+                        </div>
+                </div>
+        </div>
+</div>
+<!-- Modal Hitos -->
+<div class="modal fade" id="cargarHito" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="cargarHitoLabel" aria-hidden="true">
+        <div class="modal-dialog">
+                <div class="modal-content">
+                        <div class="modal-header">
+                                <h5 class="modal-title" id="cargarHitoLabel">Cargar Hito</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+
+                        </div>
+                </div>
+        </div>
+</div>
+{% endblock contenido %}

@@ -1,2 +1,46 @@
 {% extends 'base/base.html' %}
 {% load static %}
+
+{% block contenido %}
+<div class="container">
+    <div class="row col-xxl-2 col-xl-2 col-lg-2 col-md-2 col-sm-8 my-5">
+        <a href="{% url 'agregarcapacitacion' %}" class="btn btn-outline-primary col-10">Agregar</a>
+    </div>
+
+    {% if messages %}
+    {% for message in messages %}
+    {% if message.tags == 'success' %}
+    <div class="alert alert-primary alert-dismissible fade show" role="alert">
+        {{message}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    {% if message.tags == 'error' %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{message}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+
+    <div class="row d-flex justify-content-between">
+        {% for reg in capacitaciones %}
+        <div class="card p-0 col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-sm-12 mx-auto">
+            <div class="card-header">
+                {{reg.id}}
+                <input id="txtIDCapacitacion" value="{{reg.id}}" hidden />
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{reg.nombre}}</h5>
+                <p class="card-text">{{reg.contenido}}</p>
+                <a href="capacitacion/{{reg.id}}" class="btn btn-primary">Ver</a>
+                <button onclick="return eliminarCapa()" class="btn btn-danger">Eliminar</button>
+                <a href="invitadoshitos/{{reg.id}}" class="btn btn-success">Invitados/Hitos</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock contenido %}
