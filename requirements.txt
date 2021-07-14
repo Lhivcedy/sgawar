@@ -1,0 +1,12 @@
+asgiref==3.4.0
+certifi==2021.5.30
+chardet==4.0.0
+cx-Oracle==8.2.1
+Django==3.2.4
+django-restframework==0.0.1
+idna==2.10
+PyMySQL==1.0.2
+pytz==2021.1
+requests==2.25.1
+sqlparse==0.4.1
+urllib3==1.26.6
