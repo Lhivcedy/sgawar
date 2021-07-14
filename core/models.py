@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.fields import CharField, IntegerField, TextField
+from django.db.models.fields import CharField, DateField, DateTimeField, IntegerField, TextField
 from django.db.models.fields.files import FileField
+from django.db.models.fields.related import ForeignKey
 from django.utils import timezone
 
 # importar el modelo de tabla de usuario desde el administrador
@@ -12,6 +13,7 @@ from django.contrib.auth import authenticate, logout, login as login_aut
 from django.contrib.auth.decorators import login_required, permission_required
 
 import os
+import datetime
 
 
 def create_path(instance, filename):
@@ -28,6 +30,15 @@ def create_path_capacitaciones(instance, filename):
         'archivos',
         'capacitaciones',
         str(instance.capacitacion.id),
+        filename
+    )
+
+
+def create_path_hito(instance, filename):
+    return os.path.join(
+        'archivos',
+        'hitos',
+        str(instance.hito.id),
         filename
     )
 
@@ -104,8 +115,12 @@ class Capacitaciones(models.Model):
     encargado = models.ForeignKey(Usuarios, on_delete=models.CASCADE)
     contenido = models.TextField()
     frecuencia = models.ForeignKey(Frecuencia, on_delete=models.CASCADE)
-    fecha = models.DateField(auto_now=False, auto_now_add=False)
-    hora = models.TimeField(auto_now=False, auto_now_add=False)
+    fecha = models.DateField(
+        auto_now=False, auto_now_add=False, default=timezone.now)
+    fecha_fin = models.DateField(
+        auto_now=False, auto_now_add=False, default=timezone.now)
+    hora = models.TimeField(
+        auto_now=False, auto_now_add=False, default=datetime.datetime.now().time())
     duracion = models.ForeignKey(Duracion, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -135,3 +150,41 @@ class Invitados(models.Model):
     def __str__(self):
         return f'{self.id} {self.rut} {self.nombre}'
 
+
+class Hito(models.Model):
+    id = models.AutoField(primary_key=True)
+    timestamp = DateTimeField(auto_created=True, auto_now=True)
+    fecha = models.DateField(
+        auto_now=False, auto_now_add=False, default=timezone.now)
+    capacitacion = models.ForeignKey(Capacitaciones, on_delete=models.CASCADE)
+    estado = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.id}'
+
+
+class HitoAsistencia(models.Model):
+    id = models.AutoField(primary_key=True)
+    timestamp = DateTimeField(auto_created=True, auto_now=True)
+    hito = models.ForeignKey(
+        Hito, on_delete=models.CASCADE, related_name='asist')
+    rut = models.CharField(max_length=50)
+    nombre = models.CharField(max_length=250)
+    gerencia = models.ForeignKey(Gerencia, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.id}'
+
+
+class ArchivosHitos(models.Model):
+    id = models.AutoField(primary_key=True)
+    timestamp = models.DateTimeField(auto_created=True, auto_now=True)
+    hito = models.ForeignKey(
+        Hito, on_delete=models.CASCADE, related_name='hito_archivos')
+    file = FileField(upload_to=create_path_hito)
+
+    def __str__(self):
+        return f'{self.id} {self.file}'
+
+    def filename(self):
+        return os.path.basename(self.file.name)

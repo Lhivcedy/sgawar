@@ -1,4 +1,4 @@
-from core.models import Archivos, ArchivosCapacitacion, Capacitaciones, Duracion, Frecuencia, Gerencia, Invitados, Tema, Usuarios
+from core.models import Archivos, ArchivosCapacitacion, ArchivosHitos, Capacitaciones, Duracion, Frecuencia, Gerencia, Hito, HitoAsistencia, Invitados, Tema, Usuarios
 from django.shortcuts import render
 from django.http import HttpResponse, response
 from django.views.decorators.csrf import csrf_exempt
@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 import csv
 import codecs
+import datetime
 
 # Create your views here.
 
@@ -118,6 +119,7 @@ def agregarcapacitacion(request):
         contenido = request.POST.get('txtContenido')
         id_frecuencia = request.POST.get('cmbFrecuencia')
         fecha = request.POST.get('txtFecha')
+        fecha_fin = request.POST.get('txtFechaFin')
         hora = request.POST.get('txtHora')
         id_duracion = request.POST.get('cmbDuracion')
 
@@ -131,16 +133,36 @@ def agregarcapacitacion(request):
         capacitacion = Capacitaciones()
         if id_capa is not None:
             capacitacion.id = id_capa
+            hitos = Hito.objects.filter(capacitacion_id=id_capa)
+            hitos.delete()
         capacitacion.tema = tema
         capacitacion.nombre = nombre
         capacitacion.encargado = encargado
         capacitacion.contenido = contenido
         capacitacion.frecuencia = frecuencia
         capacitacion.fecha = fecha
+        capacitacion.fecha_fin = fecha_fin
         capacitacion.hora = hora
         capacitacion.duracion = duracion
         capacitacion.save()
         capa = Capacitaciones.objects.all().order_by('-timestamp')[:1]
+
+        start_date = datetime.datetime.strptime(fecha, "%Y-%m-%d").date()
+        end_date = datetime.datetime.strptime(fecha_fin, "%Y-%m-%d").date()
+        fecha_hito = start_date
+        # fecha_hito = fecha_hito + datetime.timedelta(days=frecuencia.valor)
+        continuar = True
+
+        while continuar:
+            hito = Hito()
+            hito.fecha = fecha_hito
+            hito.capacitacion = capa[0]
+            hito.save()
+            fecha_hito = fecha_hito + datetime.timedelta(days=frecuencia.valor)
+            continuar = not (end_date < fecha_hito)
+
+        # while continuar:
+
         for reg in capa:
             capacitacion = reg
         else:
@@ -220,7 +242,11 @@ def vercapacitacion(request, id):
         capacitador=True).order_by('user__username')
     temas = Tema.objects.all()
     contexto = {'frecuencia': frecuencia,
-                'duracion': duracion, 'temas': temas, 'archivos': archivos, 'capacitacion': capacitacion, 'capacitadores': capacitadores}
+                'duracion': duracion,
+                'temas': temas,
+                'archivos': archivos,
+                'capacitacion': capacitacion,
+                'capacitadores': capacitadores}
     return render(request, 'sitios/vercapacitacion.html', contexto)
 
 
@@ -232,7 +258,10 @@ def ver_invitados_hitos(request, id):
 
     capacitaciones = ArchivosCapacitacion.objects.filter(capacitacion_id=id)
     invitados = Invitados.objects.filter(capacitacion_id=id)
-    contexto = {'capacitacion': capacitaciones, 'invitados': invitados}
+    hitos = Hito.objects.filter(capacitacion_id=id)
+    contexto = {'capacitacion': capacitaciones,
+                'invitados': invitados,
+                'hitos': hitos}
     return render(request, 'sitios/invitadoshitos.html', contexto)
 
 
@@ -263,6 +292,53 @@ def login(request):
     return render(request, 'sitios/login.html')
 
 
+@login_required(login_url='login')
+def ver_hito(request, id):
+    hito = Hito.objects.get(id=id)
+    hito_asist = HitoAsistencia.objects.filter(hito_id=hito)
+    hito_arch = ArchivosHitos.objects.filter(hito_id=id)
+    context = {'hito': hito, 'hito_asist': hito_asist, 'hito_arch': hito_arch}
+    return render(request, "sitios/hito.html", context)
+
+
+@login_required(login_url='login')
+def cargar_asistencia(request):
+    if request.POST:
+        archivo = request.FILES.get('flsArchivo')
+        id = request.POST.get('txtIDH')
+        file_reader = csv.reader(codecs.iterdecode(
+            archivo, 'utf-8'), delimiter=';')
+        hito = Hito.objects.get(id=id)
+    for row in file_reader:
+        hito_asist = HitoAsistencia()
+        gerencia = Gerencia.objects.get(id=row[2])
+        hito_asist.rut = row[0]
+        hito_asist.nombre = row[1]
+        hito_asist.gerencia = gerencia
+        hito_asist.hito = hito
+        hito_asist.save()
+    else:
+        return redirect('verhito', id=id)
+
+
+@login_required(login_url='login')
+def cargar_anexos(request):
+    id = request.POST.get('txtIDH')
+    if request.POST:
+        archivos = request.FILES.getlist('flsArchivos')
+        hito = Hito.objects.get(id=id)
+        for reg in archivos:
+            ah = ArchivosHitos()
+            ah.hito = hito
+            ah.file = reg
+            ah.save()
+        else:
+            return redirect('verhito', id=id)
+    else:
+        return redirect('verhito', id=id)
+
+
+@login_required(login_url='login')
 def cargar_invitados(request):
     if request.POST:
         archivo = request.FILES.get('flsArchivo')
@@ -306,6 +382,27 @@ def eliminar_tema(request):
 
 
 @csrf_exempt
+def cerrar_hito(request):
+    if not request.user.is_staff:
+        response = redirect('index')
+        return response
+
+    if request.POST:
+        id = request.POST.get('idHito')
+        try:
+            hito = Hito.objects.get(id=id)
+            hito.estado = True
+            hito.save()
+            mensaje_exito = f'Se Cerró el Hito {id}'
+            messages.success(request, mensaje_exito)
+            return HttpResponse("OK")
+        except:
+            mensaje_error = f'No se pudo actualizar el estado del hito {id}'
+            messages.error(request, mensaje_error)
+            return HttpResponse("NO")
+
+
+@csrf_exempt
 def eliminar_capa(request):
     if not request.user.is_staff:
         response = redirect('index')
@@ -313,7 +410,6 @@ def eliminar_capa(request):
 
     if request.POST:
         id = request.POST.get('idCapa')
-        print(id + '*************************')
         try:
             capa = Capacitaciones.objects.get(id=id)
             capa.delete()
@@ -321,7 +417,27 @@ def eliminar_capa(request):
             messages.success(request, mensaje_exito)
             return HttpResponse("OK")
         except:
-            mensaje_error = f'No se pudo eliminar el tema número {capa.id}'
+            mensaje_error = f'No se pudo eliminar la capacitación número {id}'
+            messages.error(request, mensaje_error)
+            return HttpResponse("NO")
+
+
+@csrf_exempt
+def eliminar_hito(request):
+    if not request.user.is_staff:
+        response = redirect('index')
+        return response
+
+    if request.POST:
+        id = request.POST.get('idHito')
+        try:
+            hito = Hito.objects.get(id=id)
+            hito.delete()
+            mensaje_exito = f'Se eliminó el Hito {id}'
+            messages.success(request, mensaje_exito)
+            return HttpResponse("OK")
+        except:
+            mensaje_error = f'No se pudo eliminar el Hito número {id}'
             messages.error(request, mensaje_error)
             return HttpResponse("NO")
 
@@ -336,6 +452,22 @@ def eliminar_adjunto(request):
         id = request.POST.get('idArchivo')
         try:
             archivo = Archivos.objects.get(id=id)
+            archivo.delete()
+            return HttpResponse("OK")
+        except:
+            return HttpResponse("NO")
+
+
+@csrf_exempt
+def eliminar_adjunto_hito(request):
+    if not request.user.is_staff:
+        response = redirect('index')
+        return response
+
+    if request.POST:
+        id = request.POST.get('idArchivo')
+        try:
+            archivo = ArchivosHitos.objects.get(id=id)
             archivo.delete()
             return HttpResponse("OK")
         except:
@@ -369,6 +501,22 @@ def eliminar_invitado_capacitacion(request):
         try:
             invitado = Invitados.objects.get(id=id)
             invitado.delete()
+            return HttpResponse("OK")
+        except:
+            return HttpResponse("NO")
+        
+
+@csrf_exempt
+def eliminar_asistente(request):
+    if not request.user.is_staff:
+        response = redirect('index')
+        return response
+
+    if request.POST:
+        id = request.POST.get('idAsistencia')
+        try:
+            asistente = HitoAsistencia.objects.get(id=id)
+            asistente.delete()
             return HttpResponse("OK")
         except:
             return HttpResponse("NO")

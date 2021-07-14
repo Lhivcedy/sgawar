@@ -1,5 +1,5 @@
 from os import name
-from core.views import actualizartema, agregarcapacitacion, agregartema, buscar, capacitaciones, cargar_invitados, cerrar, eliminar_adjunto, eliminar_adjunto_capacitacion, eliminar_capa, eliminar_invitado_capacitacion, eliminar_tema, index, login, temas, ver_invitados_hitos, vercapacitacion, vertema
+from core.views import actualizartema, agregarcapacitacion, agregartema, buscar, capacitaciones, cargar_anexos, cargar_asistencia, cargar_invitados, cerrar, cerrar_hito, eliminar_adjunto, eliminar_adjunto_capacitacion, eliminar_adjunto_hito, eliminar_asistente, eliminar_capa, eliminar_hito, eliminar_invitado_capacitacion, eliminar_tema, index, login, temas, ver_hito, ver_invitados_hitos, vercapacitacion, vertema
 from django.contrib import admin
 from django.urls import path
 
@@ -24,7 +24,18 @@ urlpatterns = [
     path('agregarcapacitacion', agregarcapacitacion, name='agregarcapacitacion'),
     path('capacitaciones', capacitaciones, name='capacitaciones'),
     path('capacitacion/<int:id>', vercapacitacion, name='capacitacion'),
+    path('invitadoshitos/hito/<int:id>', ver_hito, name='verhito'),
     path('cargarinvitados', cargar_invitados, name="cargarinvitados"),
+    path('cargarasistencia', cargar_asistencia, name="cargarasistencia"),
+    path('cargaranexos', cargar_anexos, name="cargaranexos"),
     path('invitadoshitos/<int:id>', ver_invitados_hitos,
-         name='detalle_capacitacion')
+         name='detalle_capacitacion'),
+    path('invitadoshitos/hito/eliminar_adjunto_hito',
+         eliminar_adjunto_hito, name='eliminaradjuntohito'),
+    path('invitadoshitos/hito/eliminar_hito',
+         eliminar_hito, name='eliminarhito'),
+    path('invitadoshitos/hito/cerrar_hito',
+         cerrar_hito, name='cerrarhito'),
+    path('invitadoshitos/hito/eliminar_asistente',
+         eliminar_asistente, name='eliminarasistente')
 ]

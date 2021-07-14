@@ -1,0 +1,117 @@
+{% extends 'base/base.html' %}
+
+{% block contenido %}
+<div class="container">
+    <idv class="row">
+        <div class="col-xxl-8 col-xl-8 col-lg-8 col-md-10 col-sm-11">
+            <div class="row col-12">
+                <h2 class="mt-5">Hito ID: {{hito.id}}</h2>
+                <p>{{hito.fecha}} a las {{hito.capacitacion.hora}}</p>
+                <input type="text" id="idHito" value="{{hito.id}}" readonly hidden>
+                <input type="text" id="idCapa" value="{{hito.capacitacion.id}}" readonly hidden>
+            </div>
+            <div class="row col-12">
+                <div>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                        data-bs-target="#cargarAsitencia">
+                        Asistencia
+                    </button>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cargarAnexos">
+                        Anexos
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="return cerrarHito(this)">
+                        Cerrar
+                    </button>
+                    <button onclick="return eliminarHito(this)" class="btn btn-danger"
+                        id="{{hito.capacitacion.id}}">Eliminar</button>
+                    <a class="btn btn-secondary float-end"
+                        href="{% url 'detalle_capacitacion' id=hito.capacitacion.id %}">Volver</a>
+                </div>
+
+            </div>
+            <div class="row col-12 mt-4">
+                <table class="table">
+                    <thead>
+                        <th>Rut</th>
+                        <th>Nombre</th>
+                        <th>Gerencia</th>
+                        <th>Acción</th>
+                    </thead>
+                    <tbody>
+                        {% for reg in hito_asist %}
+                        <tr>
+                            <td>{{reg.rut}}</td>
+                            <td>{{reg.nombre}}</td>
+                            <td>{{reg.gerencia.nombre_gerencia}}</td>
+                            <td><button class="btn btn-danger" onclick="return eliminarAsitente(this)" id="{{reg.id}}">Eliminar</button></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-xxl-4 col-xl-4 col-lg-4 col-md-10 col-sm-11 mt-5">
+            <h2>Anexos</h2>
+            {% for reg in hito_arch %}
+            <div class="alert alert-danger alert-dismissible fade show d-flex justify-content-between" role="alert">
+                <a href="{{reg.file.url}}" target="_blank">{{reg.filename|truncatechars:34}}</a>
+                <button type="button" class="btn-close" id="{{reg.id}}" aria-label="Close"
+                    onclick="return eliminarAdjuntoHito(this)"></button>
+            </div>
+            {% endfor %}
+        </div>
+    </idv>
+</div>
+
+<div class="modal fade" id="cargarAsitencia" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="cargarAsitenciaLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cargarAsitenciaLabel">Cargar Asistencia</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h5>Cargar Lista Asistencia en formato CSV o TXT</h5>
+                <form class="form-signin mx-5 col-12 mx-auto" enctype="multipart/form-data" method="POST"
+                    action="{% url 'cargarasistencia' %}">
+                    {% csrf_token %}
+                    <div class="form-label-group">
+                        <label for="flsArchivo" class="form-label">Agregar Archivos:</label>
+                        <input class="form-control" type="file" id="flsArchivo" name="flsArchivo" accept=".csv" />
+                        <input type="text" readonly name="txtIDH" value="{{hito.id}}" hidden />
+                    </div>
+                    <div class="form-label-group">
+                        <button class="btn btn-primary mt-3" type="submit">Registrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="cargarAnexos" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="cargarAnexosLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cargarAnexosaLabel">Cargar Anexos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form class="form-signin mx-5 col-12 mx-auto" enctype="multipart/form-data" method="POST"
+                    action="{% url 'cargaranexos' %}">
+                    {% csrf_token %}
+                    <div class="form-label-group">
+                        <label for="flsArchivo" class="form-label">Agregar Archivos:</label>
+                        <input class="form-control" type="file" id="flsArchivo" name="flsArchivos" multiple />
+                        <input type="text" readonly name="txtIDH" value="{{hito.id}}" hidden />
+                    </div>
+                    <div class="form-label-group">
+                        <button class="btn btn-primary mt-3" type="submit">Registrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock contenido %}

@@ -1,10 +1,29 @@
 {% extends 'base/base.html' %}
-
 {% block contenido %}
 
 <div class="container">
         <div class="row">
+                {% if messages %}
+                {% for message in messages %}
+                {% if message.tags == 'success' %}
+                <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                        {{message}}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endif %}
+                {% if message.tags == 'error' %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{message}}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endif %}
+                {% endfor %}
+                {% endif %}
+
+                <a href="{% url 'capacitaciones' %}" class="btn btn-secondary col-2 float-start my-4 ms-5">Volver</a>
+
                 <h2 class="col-11 p-0 mx-auto mt-3">Capacitación ID: {{capacitacion.0.capacitacion.id}}</h2>
+
                 <div class="card p-0 mx-auto col-11 mt-1">
                         <div class="card-header text-center">
                                 {{capacitacion.0.capacitacion.nombre}}
@@ -48,20 +67,33 @@
                                                         <th scope="col">Fecha</th>
                                                         <th scope="col">Hora</th>
                                                         <th scope="col">Participantes</th>
-                                                        <th scope="col">Registro</th>
                                                         <th scope="col">Estado</th>
+                                                        <th scope="col">Acción</th>
                                                 </tr>
                                         </thead>
                                         <tbody>
-
+                                                {% for reg in hitos %}
+                                                <tr>
+                                                        <td>{{reg.fecha|date:'d-m-Y'}}</td>
+                                                        <td>{{reg.capacitacion.hora}}</td>
+                                                        <td class="text-center">
+                                                                {{reg.asist.all|length}}
+                                                                /{{invitados|length}}
+                                                        </td>
+                                                        <td>{% if reg.estado %}Aceptado{% else %}Pendiente{% endif %}
+                                                        </td>
+                                                        <td><a href="hito/{{reg.id}}" class="btn btn-primary">Ver</a>
+                                                        </td>
+                                                </tr>
+                                                {% endfor %}
                                         </tbody>
                                 </table>
-                                <div class="d-flex justify-content-end mb-3">
+                                <!--<div class="d-flex justify-content-end mb-3">
                                         <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                                 data-bs-target="#cargarHito">
                                                 + Hitos
                                         </button>
-                                </div>
+                                </div>-->
                         </div>
                         <div class="card-footer text-muted text-center">
                                 Tema Creado el {{capacitacion.0.capacitacion.timestamp}} por

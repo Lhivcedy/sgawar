@@ -160,6 +160,128 @@ function eliminarInvitado(e) {
     });
 }
 
+function eliminarAsitente(e) {
+    swal({
+        title: "¿Eliminar Asistente?",
+        text: "La información asocidada se elimina en cascada.",
+        icon: "warning",
+        buttons: {
+            confirm: {
+                text: "Eliminar",
+                value: true,
+                visible: true,
+                closeModal: true
+            },
+            cancel: {
+                text: "Cancelar",
+                value: false,
+                visible: true,
+                closeModal: true
+            }
+        },
+        dangerMode: true,
+        reverseButtons: true
+    }).then((value) => {
+        if (value) {
+            $.ajax({
+                type: "POST",
+                url: "eliminar_asistente",
+                data: {
+                    idAsistencia: e.id,
+                },
+                success: function (resultado) {
+                    if (resultado === "OK") {
+                        location.reload();
+                    }
+                }
+            });
+        }
+    });
+}
+
+function eliminarHito(e) {
+    var idCapa = $("#idCapa").val();
+    var idHito = $("#idHito").val();
+    swal({
+        title: "¿Eliminar Hito?",
+        text: "La información asocidada se elimina en cascada.",
+        icon: "warning",
+        buttons: {
+            confirm: {
+                text: "Eliminar",
+                value: true,
+                visible: true,
+                closeModal: true
+            },
+            cancel: {
+                text: "Cancelar",
+                value: false,
+                visible: true,
+                closeModal: true
+            }
+        },
+        dangerMode: true,
+        reverseButtons: true
+    }).then((value) => {
+        if (value) {
+            $.ajax({
+                type: "POST",
+                url: "eliminar_hito",
+                data: {
+                    idHito: idHito,
+                },
+                success: function (resultado) {
+                    if (resultado === "OK") {
+                        location.href = "../../invitadoshitos/" + idCapa;
+                    }
+                }
+            });
+        }
+    });
+}
+
+function cerrarHito() {
+    var idCapa = $("#idCapa").val();
+    var idHito = $("#idHito").val();
+    swal({
+        title: "¿Cerrar Hito?",
+        text: "La Actualización de estado solo es para la estadística (por ahora).",
+        icon: "warning",
+        buttons: {
+            confirm: {
+                text: "Cerrar",
+                value: true,
+                visible: true,
+                closeModal: true
+            },
+            cancel: {
+                text: "Cancelar",
+                value: false,
+                visible: true,
+                closeModal: true
+            }
+        },
+        dangerMode: true,
+        reverseButtons: true
+    }).then((value) => {
+        if (value) {
+            $.ajax({
+                type: "POST",
+                url: "cerrar_hito",
+                data: {
+                    idHito: idHito,
+                },
+                success: function (resultado) {
+                    if (resultado === "OK") {
+                        location.href = "../../invitadoshitos/" + idCapa;
+                    }
+                }
+            });
+        }
+    });
+}
+
+
 function eliminarArchivoCapacitacion(e) {
     var elemento = e;
     swal({
@@ -187,6 +309,46 @@ function eliminarArchivoCapacitacion(e) {
             $.ajax({
                 type: "POST",
                 url: "eliminar_adjunto_capa",
+                data: {
+                    idArchivo: elemento.id,
+                },
+                success: function (resultado) {
+                    if (resultado === "OK") {
+                        location.reload();
+                    }
+                }
+            });
+        }
+    });
+}
+
+function eliminarAdjuntoHito(e) {
+    var elemento = e;
+    swal({
+        title: "¿Eliminar Archivo Adjunto?",
+        text: "El Archivo adjunto a este tema será eliminado.",
+        icon: "warning",
+        buttons: {
+            confirm: {
+                text: "Eliminar",
+                value: true,
+                visible: true,
+                closeModal: true
+            },
+            cancel: {
+                text: "Cancelar",
+                value: false,
+                visible: true,
+                closeModal: true
+            }
+        },
+        dangerMode: true,
+        reverseButtons: true
+    }).then((value) => {
+        if (value) {
+            $.ajax({
+                type: "POST",
+                url: "eliminar_adjunto_hito",
                 data: {
                     idArchivo: elemento.id,
                 },

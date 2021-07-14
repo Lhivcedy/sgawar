@@ -18,8 +18,8 @@
     {% endif %}
     {% endfor %}
     {% endif %}
-    <form class="form-signin mx-5 col-12 mx-auto" enctype="multipart/form-data" action="{% url 'agregarcapacitacion' %}" method="POST"
-        onsubmit="">
+    <form class="form-signin mx-5 col-12 mx-auto" enctype="multipart/form-data" action="{% url 'agregarcapacitacion' %}"
+        method="POST" onsubmit="">
         {% csrf_token %}
         <div class="form-label-group mt-5 mb-2">
             <h3 class="text-center">Agregar Capacitación</h3>
@@ -38,7 +38,7 @@
                 {% endfor %}
             </select>
         </div>
-         <div class="form-label-group mb-2">
+        <div class="form-label-group mb-2">
             <label for="cmbTema" class="mb-2">Encargado:</label>
             <select class="form-select mb-2" aria-label="Default select example" name="cmbEncargado" id="cmbEncargado">
                 <option selected disabled>Seleccionar Encargado...</option>
@@ -66,8 +66,12 @@
             </select>
         </div>
         <div class="form-label-group mb-2">
-            <label for="txtFecha" class="mb-2">Fecha:</label>
+            <label for="txtFecha" class="mb-2">Fecha Inicio:</label>
             <input type="date" class="form-control mb-2" id="txtFecha" name="txtFecha" required />
+        </div>
+        <div class="form-label-group mb-2">
+            <label for="txtFechaFin" class="mb-2">Fecha Fin:</label>
+            <input type="date" class="form-control mb-2" id="txtFechaFin" name="txtFechaFin" required />
         </div>
         <div class="form-label-group mb-2">
             <label for="txtHora" class="mb-2">Hora:</label>
