@@ -22,11 +22,11 @@
 
                 <a href="{% url 'capacitaciones' %}" class="btn btn-secondary col-2 float-start my-4 ms-5">Volver</a>
 
-                <h2 class="col-11 p-0 mx-auto mt-3">Capacitación ID: {{capacitacion.0.capacitacion.id}}</h2>
+                <h2 class="col-11 p-0 mx-auto mt-3">Capacitación ID: {{hitos.0.capacitacion.id}}</h2>
 
                 <div class="card p-0 mx-auto col-11 mt-1">
                         <div class="card-header text-center">
-                                {{capacitacion.0.capacitacion.nombre}}
+                                {{hitos.0.capacitacion.nombre}}
                         </div>
                         <div class="card-body">
                                 <h5 class="text-left mb-3">Invitados:</h5>
@@ -96,8 +96,8 @@
                                 </div>-->
                         </div>
                         <div class="card-footer text-muted text-center">
-                                Tema Creado el {{capacitacion.0.capacitacion.timestamp}} por
-                                {{capacitacion.0.capacitacion.tema.autor}}
+                                Tema Creado el {{hitos.0.capacitacion.timestamp}} por
+                                {{hitos.0.capacitacion.tema.autor}}
                         </div>
                 </div>
         </div>
@@ -122,7 +122,7 @@
                                                 <input class="form-control" type="file" id="flsArchivo"
                                                         name="flsArchivo" accept=".csv" />
                                                 <input type="text" readonly name="txtIDC"
-                                                        value="{{capacitacion.0.capacitacion.id}}" hidden />
+                                                        value="{{hitos.0.capacitacion.id}}" hidden />
                                         </div>
                                         <div class="form-label-group">
                                                 <button class="btn btn-primary mt-3" type="submit">Registrar</button>
