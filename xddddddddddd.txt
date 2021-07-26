@@ -1,0 +1,25 @@
+ServerName 192.168.150.16:9292
+
+
+# Django Project
+LoadFile "C:/Users/rjara/AppData/Local/Programs/Python/Python39/python39.dll"
+LoadModule wsgi_module "c:/deploy/sgwar/en/lib/site-packages/mod_wsgi/server/mod_wsgi.cp39-win_amd64.pyd"
+WSGIPythonHome "c:/deploy/sgwar/en"
+WSGIScriptAlias / "C:/deploy/sgwar/sgawar/sga/wsgi.py"
+WSGIPythonPath "C:/deploy/sgwar/sgawar/"
+
+<Directory "C:/deploy/sgwar/sgawar/sga">
+    <Files wsgi.py>
+        Require all granted
+    </Files>
+</Directory>
+
+Alias /static "C:/deploy/sgwar/sgawar/core/static"
+<Directory "C:/deploy/sgwar/sgawar/core/static">
+    Require all granted
+</Directory>
+
+Alias /media "C:/deploy/sgwar/sgawar/media"
+<Directory "C:/deploy/sgwar/sgawar/media">
+    Require all granted
+</Directory>
